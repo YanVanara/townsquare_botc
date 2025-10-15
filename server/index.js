@@ -59,11 +59,16 @@ if (process.env.NODE_ENV !== "development") {
 
 const wss = new WebSocket.Server({
   ...(process.env.NODE_ENV === "development" ? { port: 8081 } : { server }),
-  verifyClient: info =>
-    info.origin &&
-    !!info.origin.match(
+  verifyClient: info => {
+    // Allow connections without origin (health checks, direct connections)
+    if (!info.origin) {
+      return true;
+    }
+    // Verify origin matches allowed domains
+    return !!info.origin.match(
       /^https?:\/\/([^.]+\.github\.io|localhost|clocktower\.online|eddbra1nprivatetownsquare\.xyz|railway\.app)/i
-    )
+    );
+  }
 });
 
 function noop() {}
