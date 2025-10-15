@@ -206,7 +206,29 @@ wss.on("connection", function connection(ws, req) {
         );
         channels[ws.channel].forEach(function each(client) {
           if (client !== ws && client.readyState === WebSocket.OPEN) {
-            client.send(data);
+            // Special handling for tracker clients - send enriched messages with metadata
+            if (client.playerId && client.playerId.startsWith("tracker-")) {
+              try {
+                const messageData = JSON.parse(data);
+                const enrichedMessage = {
+                  _meta: {
+                    sender: ws.playerId,
+                    isHost: ws.playerId === "host",
+                    timestamp: new Date().toISOString(),
+                    channel: ws.channel
+                  },
+                  type: messageData[0],
+                  payload: messageData[1]
+                };
+                client.send(JSON.stringify(enrichedMessage));
+              } catch (e) {
+                // If parsing fails, send original message
+                client.send(data);
+              }
+            } else {
+              // Regular clients get the original message
+              client.send(data);
+            }
             metrics.messages_outgoing.inc();
           }
         });

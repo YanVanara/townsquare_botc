@@ -1,7 +1,7 @@
 class LiveSession {
   constructor(store) {
-    this._wss = "wss://live.clocktower.online:8080/";
-    // this._wss = "ws://localhost:8081/"; // uncomment if using local server with NODE_ENV=development
+    // Use environment variable for production, fallback to localhost for development
+    this._wss = process.env.VUE_APP_WSS_URL || "ws://localhost:8081/";
     this._socket = null;
     this._isSpectator = true;
     this._gamestate = [];
@@ -439,14 +439,35 @@ class LiveSession {
   }
 
   /**
+   * Send demon bluffs to tracker clients.
+   */
+  sendBluffs() {
+    if (this._isSpectator) return;
+    const { bluffs } = this._store.state.players;
+    // Send to tracker clients only (not to regular players for privacy)
+    this._send("tracker", {
+      type: "demonBluffs",
+      bluffs: bluffs
+        .filter(role => role && role.id) // Filter out empty slots
+        .map(role => ({
+          roleId: role.id,
+          roleName: role.name,
+          team: role.team
+        }))
+    });
+  }
+
+  /**
    * Publish a player update.
    * @param player
    * @param property
    * @param value
    */
   sendPlayer({ player, property, value }) {
-    if (this._isSpectator || property === "reminders") return;
+    if (this._isSpectator) return;
     const index = this._store.state.players.players.indexOf(player);
+    
+    // Handle role updates
     if (property === "role") {
       if (value.team && value.team === "traveler") {
         // update local gamestate to remember this player as a traveler
@@ -461,7 +482,29 @@ class LiveSession {
         delete this._gamestate[index].roleId;
         this._send("player", { index, property, value: "" });
       }
-    } else {
+      // Broadcast non-traveler roles to tracker clients
+      if (value.id && value.team !== "traveler") {
+        this._send("tracker", {
+          type: "roleAssignment",
+          index,
+          playerName: player.name,
+          roleId: value.id,
+          roleName: value.name,
+          team: value.team
+        });
+      }
+    } 
+    // Handle reminder (token) updates - broadcast to tracker clients
+    else if (property === "reminders") {
+      this._send("tracker", {
+        type: "reminders",
+        index,
+        playerName: player.name,
+        reminders: value
+      });
+    } 
+    // Handle other properties normally
+    else {
       this._send("player", { index, property, value });
     }
   }
@@ -655,16 +698,32 @@ class LiveSession {
   distributeRoles() {
     if (this._isSpectator) return;
     const message = {};
+    const trackerMessage = [];
     this._store.state.players.players.forEach((player, index) => {
       if (player.id && player.role) {
         message[player.id] = [
           "player",
           { index, property: "role", value: player.role.id }
         ];
+        // Also collect for tracker broadcast
+        trackerMessage.push({
+          index,
+          playerName: player.name,
+          roleId: player.role.id,
+          roleName: player.role.name,
+          team: player.role.team
+        });
       }
     });
     if (Object.keys(message).length) {
       this._send("direct", message);
+    }
+    // Broadcast all role assignments to tracker clients
+    if (trackerMessage.length) {
+      this._send("tracker", {
+        type: "allRoles",
+        players: trackerMessage
+      });
     }
   }
 
@@ -913,6 +972,9 @@ export default store => {
         } else {
           session.sendPlayer(payload);
         }
+        break;
+      case "players/setBluff":
+        session.sendBluffs();
         break;
     }
   });
