@@ -1,5 +1,6 @@
 const fs = require("fs");
 const https = require("https");
+const http = require("http");
 const WebSocket = require("ws");
 const client = require("prom-client");
 
@@ -12,20 +13,35 @@ register.setDefaultLabels({
 
 const PING_INTERVAL = 30000; // 30 seconds
 
+// SSL Configuration: Only use SSL if certificates exist (self-hosted)
+// Railway/cloud platforms handle SSL at the load balancer level
+let server;
 const options = {};
 
 if (process.env.NODE_ENV !== "development") {
-  options.cert = fs.readFileSync("cert.pem");
-  options.key = fs.readFileSync("key.pem");
+  // Check if SSL certificates exist
+  const certExists = fs.existsSync("cert.pem") && fs.existsSync("key.pem");
+  
+  if (certExists) {
+    console.log("SSL certificates found, using HTTPS");
+    options.cert = fs.readFileSync("cert.pem");
+    options.key = fs.readFileSync("key.pem");
+    server = https.createServer(options);
+  } else {
+    console.log("No SSL certificates found, using HTTP (Railway will handle SSL)");
+    server = http.createServer();
+  }
+} else {
+  // Development mode - use HTTP
+  server = http.createServer();
 }
 
-const server = https.createServer(options);
 const wss = new WebSocket.Server({
   ...(process.env.NODE_ENV === "development" ? { port: 8081 } : { server }),
   verifyClient: info =>
     info.origin &&
     !!info.origin.match(
-      /^https?:\/\/([^.]+\.github\.io|localhost|clocktower\.online|eddbra1nprivatetownsquare\.xyz)/i
+      /^https?:\/\/([^.]+\.github\.io|localhost|clocktower\.online|eddbra1nprivatetownsquare\.xyz|railway\.app)/i
     )
 });
 
