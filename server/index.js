@@ -294,8 +294,23 @@ if (process.env.NODE_ENV !== "development") {
   server.listen(PORT, '0.0.0.0', () => {
     console.log(`WebSocket server listening on 0.0.0.0:${PORT}`);
   });
+  
+  // Handle HTTP requests (not WebSocket upgrades)
   server.on("request", (req, res) => {
-    res.setHeader("Content-Type", register.contentType);
-    register.metrics().then(out => res.end(out));
+    console.log(`HTTP ${req.method} ${req.url} from ${req.headers.origin || 'unknown'}`);
+    
+    // Metrics endpoint
+    if (req.url === '/metrics' || req.url === '/') {
+      res.setHeader("Content-Type", register.contentType);
+      register.metrics().then(out => res.end(out));
+    } else {
+      res.writeHead(404);
+      res.end('Not Found');
+    }
+  });
+  
+  // Log WebSocket connections
+  wss.on("connection", (ws, req) => {
+    console.log(`✅ WebSocket connected: ${req.url} from ${req.headers.origin}`);
   });
 }
