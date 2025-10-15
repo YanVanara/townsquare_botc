@@ -12,6 +12,7 @@ register.setDefaultLabels({
 });
 
 const PING_INTERVAL = 30000; // 30 seconds
+let isServerReady = false; // Flag to track if server is fully initialized
 
 // SSL Configuration: Only use SSL if certificates exist (self-hosted)
 // Railway/cloud platforms handle SSL at the load balancer level
@@ -20,22 +21,55 @@ const options = {};
 
 // HTTP request handler for health checks and metrics
 const requestHandler = (req, res) => {
-  console.log(`HTTP ${req.method} ${req.url} from ${req.headers.origin || req.headers.host || 'unknown'}`);
-  
-  // Health check endpoint
-  if (req.url === '/' || req.url === '/health') {
-    res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end('OK');
-  }
-  // Metrics endpoint
-  else if (req.url === '/metrics') {
-    res.setHeader("Content-Type", register.contentType);
-    register.metrics().then(out => res.end(out));
-  }
-  // Not found
-  else {
-    res.writeHead(404);
-    res.end('Not Found');
+  try {
+    const origin = req.headers.origin || req.headers.host || req.headers['user-agent'] || 'unknown';
+    console.log(`HTTP ${req.method} ${req.url} from ${origin}`);
+    
+    // Health check endpoint
+    if (req.url === '/' || req.url === '/health') {
+      if (!isServerReady) {
+        res.writeHead(503, { 'Content-Type': 'text/plain' });
+        res.end('Server not ready');
+        console.log(`⏳ Health check received but server not ready yet`);
+        return;
+      }
+      res.writeHead(200, { 
+        'Content-Type': 'text/plain',
+        'Connection': 'close'
+      });
+      res.end('OK');
+      console.log(`✅ Health check responded: 200 OK`);
+      return;
+    }
+    // Metrics endpoint
+    else if (req.url === '/metrics') {
+      res.setHeader("Content-Type", register.contentType);
+      register.metrics()
+        .then(out => {
+          res.end(out);
+          console.log(`✅ Metrics responded: 200 OK`);
+        })
+        .catch(err => {
+          console.error(`❌ Metrics error:`, err);
+          res.writeHead(500);
+          res.end('Internal Server Error');
+        });
+      return;
+    }
+    // Not found
+    else {
+      res.writeHead(404);
+      res.end('Not Found');
+      return;
+    }
+  } catch (error) {
+    console.error(`❌ Request handler error:`, error);
+    try {
+      res.writeHead(500);
+      res.end('Internal Server Error');
+    } catch (e) {
+      console.error(`❌ Failed to send error response:`, e);
+    }
   }
 };
 
@@ -319,8 +353,11 @@ wss.on("close", function close() {
 if (process.env.NODE_ENV !== "development") {
   const PORT = process.env.PORT || 8080;
   console.log(`server starting on port ${PORT}`);
+  console.log(`PORT environment variable: ${process.env.PORT || 'not set, using 8080'}`);
   server.listen(PORT, '0.0.0.0', () => {
+    isServerReady = true; // Mark server as ready
     console.log(`✅ WebSocket server ready on 0.0.0.0:${PORT}`);
     console.log(`✅ Health check: http://localhost:${PORT}/health`);
+    console.log(`✅ Server is now ready to accept health checks`);
   });
 }
