@@ -8,7 +8,8 @@ nixPkgs = ["nodejs-18_x"]
 cmds = ["npm ci"]
 
 [phases.build]
-# Build is handled by Railway based on start command
+# Build the Vue.js frontend during build phase
+cmds = ["npm run build"]
 
 [start]
 # Start command will be set via Railway environment or Procfile

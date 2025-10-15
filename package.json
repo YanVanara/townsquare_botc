@@ -9,7 +9,7 @@
     "lint": "vue-cli-service lint",
     "lint-ci": "vue-cli-service lint --no-fix --max-warnings=0",
     "start": "npm run serve",
-    "start:frontend": "npm run serve",
+    "start:frontend": "serve -s dist -l ${PORT:-8080}",
     "start:websocket": "cd server && NODE_ENV=production node index.js",
     "dev:websocket": "cd server && NODE_ENV=development node index.js",
     "dev:frontend": "vue-cli-service serve"
@@ -24,6 +24,7 @@
     "prom-client": "^13.0.0",
     "sass": "^1.30.0",
     "sass-loader": "^8.0.2",
+    "serve": "^14.2.1",
     "vue": "^2.6.12",
     "vue-template-compiler": "^2.7.15",
     "vuex": "^3.6.0",
