@@ -8,23 +8,23 @@
       @click="toggleModal('reference')"
       icon="address-card"
       class="toggle"
-      title="Show Character Reference"
+      :title="$t('ui.modal.nightOrder.reference')"
     />
     <h3>
-      Night Order
+      {{ $t('ui.modal.nightOrder.title') }}
       <font-awesome-icon icon="cloud-moon" />
-      {{ edition.name || "Custom Script" }}
+      {{ edition.name || $t('ui.modal.edition.custom.introEnd') }}
     </h3>
     <div class="night">
       <ul class="first">
-        <li class="headline">First Night</li>
+        <li class="headline">{{ $t('ui.modal.nightOrder.firstNight') }}</li>
         <li
           v-for="role in rolesFirstNight"
           :key="role.name"
           :class="[role.team]"
         >
           <span class="name">
-            {{ role.name }}
+            {{ getTranslatedName(role) }}
             <span class="player" v-if="role.players.length">
               <br />
               <small
@@ -50,13 +50,13 @@
               })`
             }"
           ></span>
-          <span class="reminder" v-if="role.firstNightReminder">
-            {{ role.firstNightReminder }}
+          <span class="reminder" v-if="getTranslatedFirstNightReminder(role)">
+            {{ getTranslatedFirstNightReminder(role) }}
           </span>
         </li>
       </ul>
       <ul class="other">
-        <li class="headline">Other Nights</li>
+        <li class="headline">{{ $t('ui.modal.nightOrder.otherNights') }}</li>
         <li
           v-for="role in rolesOtherNight"
           :key="role.name"
@@ -76,7 +76,7 @@
             }"
           ></span>
           <span class="name">
-            {{ role.name }}
+            {{ getTranslatedName(role) }}
             <span class="player" v-if="role.players.length">
               <br />
               <small
@@ -89,8 +89,8 @@
               >
             </span>
           </span>
-          <span class="reminder" v-if="role.otherNightReminder">
-            {{ role.otherNightReminder }}
+          <span class="reminder" v-if="getTranslatedOtherNightReminder(role)">
+            {{ getTranslatedOtherNightReminder(role) }}
           </span>
         </li>
       </ul>
@@ -169,7 +169,57 @@ export default {
     ...mapState("players", ["players", "fabled"])
   },
   methods: {
-    ...mapMutations(["toggleModal"])
+    ...mapMutations(["toggleModal"]),
+    getTranslatedName(role) {
+      if (!role || !role.id) return role?.name || "";
+      
+      // Special case for Minion/Demon info (hardcoded roles)
+      if (role.id === "evil") {
+        if (role.name === "Minion info") {
+          return this.$t('ui.modal.nightOrder.minionInfo');
+        }
+        if (role.name === "Demon info & bluffs") {
+          return this.$t('ui.modal.nightOrder.demonInfo');
+        }
+      }
+      
+      // Try to get translation from roles
+      const roleTranslationKey = `roles.${role.id}.name`;
+      let translated = this.$t(roleTranslationKey);
+      if (translated !== roleTranslationKey) return translated;
+      
+      // Try to get translation from fabled
+      const fabledTranslationKey = `fabled.${role.id}.name`;
+      translated = this.$t(fabledTranslationKey);
+      if (translated !== fabledTranslationKey) return translated;
+      
+      // Fallback to original name
+      return role.name || "";
+    },
+    getTranslatedFirstNightReminder(role) {
+      if (!role || !role.id) return role?.firstNightReminder || "";
+      
+      // Special case for Minion info (hardcoded roles)
+      if (role.id === "evil" && role.firstNightReminder) {
+        if (role.name === "Minion info") {
+          return this.$t('ui.modal.nightOrder.minionInfoReminder');
+        }
+        if (role.name === "Demon info & bluffs") {
+          return this.$t('ui.modal.nightOrder.demonInfoReminder');
+        }
+      }
+      
+      const translationKey = `roles.${role.id}.firstNightReminder`;
+      const translated = this.$t(translationKey);
+      return translated !== translationKey ? translated : role.firstNightReminder || "";
+    },
+    getTranslatedOtherNightReminder(role) {
+      if (!role || !role.id) return role?.otherNightReminder || "";
+      
+      const translationKey = `roles.${role.id}.otherNightReminder`;
+      const translated = this.$t(translationKey);
+      return translated !== translationKey ? translated : role.otherNightReminder || "";
+    }
   }
 };
 </script>

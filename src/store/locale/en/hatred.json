@@ -1,0 +1,17 @@
+{
+  "Chambermaid": {
+    "Mathematician": "The Chambermaid learns if the Mathematician wakes tonight or not, even though the Chambermaid wakes first."
+  },
+  "Butler": {
+    "Cannibal": "If the Cannibal gains the Butler ability, the Cannibal learns this."
+  },
+  "Lunatic": {
+    "Mathematician": "The Mathematician learns if the Lunatic attacks a different player(s) than the real Demon attacked."
+  },
+  "Pit-Hag": {
+    "Heretic": "A Pit-Hag can not create a Heretic.",
+    "Damsel": "If a Pit-Hag creates a Damsel, the Storyteller chooses which player it is.",
+    "Politician": "A Pit-hag can not create an evil Politician."
+  }
+}
+

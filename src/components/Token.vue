@@ -32,16 +32,16 @@
         x="66.6%"
         text-anchor="middle"
         class="label mozilla"
-        :font-size="role.name | nameToFontSize"
+        :font-size="translatedName | nameToFontSize"
       >
         <textPath xlink:href="#curve">
-          {{ role.name }}
+          {{ translatedName }}
         </textPath>
       </text>
     </svg>
     <div class="edition" :class="[`edition-${role.edition}`, role.team]"></div>
-    <div class="ability" v-if="role.ability">
-      {{ role.ability }}
+    <div class="ability" v-if="translatedAbility">
+      {{ translatedAbility }}
     </div>
   </div>
 </template>
@@ -63,6 +63,38 @@ export default {
         (this.role.reminders || []).length +
         (this.role.remindersGlobal || []).length
       );
+    },
+    translatedName() {
+      if (!this.role || !this.role.id) return this.role.name || "";
+      
+      // Try to get translation from roles
+      const roleTranslationKey = `roles.${this.role.id}.name`;
+      let translated = this.$t(roleTranslationKey);
+      if (translated !== roleTranslationKey) return translated;
+      
+      // Try to get translation from fabled
+      const fabledTranslationKey = `fabled.${this.role.id}.name`;
+      translated = this.$t(fabledTranslationKey);
+      if (translated !== fabledTranslationKey) return translated;
+      
+      // Fallback to original name
+      return this.role.name || "";
+    },
+    translatedAbility() {
+      if (!this.role || !this.role.id) return this.role.ability || "";
+      
+      // Try to get translation from roles
+      const roleTranslationKey = `roles.${this.role.id}.ability`;
+      let translated = this.$t(roleTranslationKey);
+      if (translated !== roleTranslationKey) return translated;
+      
+      // Try to get translation from fabled
+      const fabledTranslationKey = `fabled.${this.role.id}.ability`;
+      translated = this.$t(fabledTranslationKey);
+      if (translated !== fabledTranslationKey) return translated;
+      
+      // Fallback to original ability
+      return this.role.ability || "";
     },
     ...mapState(["grimoire"])
   },

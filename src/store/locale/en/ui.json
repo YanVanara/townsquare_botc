@@ -1,0 +1,299 @@
+{
+  "menu": {
+    "grimoire": {
+      "title": "Grimoire",
+      "hide": "Hide",
+      "show": "Show",
+      "nightSwitch": "Switch to Night",
+      "daySwitch": "Switch to Day",
+      "order": "Night order",
+      "zoom": "Zoom",
+      "background": "Background image",
+      "customImages": "Show Custom Images",
+      "streamerMode": "Streamer Mode",
+      "animations": "Disable Animations",
+      "mute": "Mute Sounds",
+      "ringBell": "Ring Bell",
+      "organGrinder": "Secret Vote"
+    },
+    "session": {
+      "title": {
+        "player": "Playing",
+        "host": "Hosting",
+        "create": "Live Session"
+      },
+      "player": "Player",
+      "players": "players",
+      "host": "host",
+      "storyteller": "Host (Storyteller)",
+      "delay": "Delay to",
+      "link": "Copy player link",
+      "sendRoles": "Send Characters",
+      "voteHistory": "Vote history",
+      "leave": "Leave Session"
+    },
+    "players": {
+      "title": "Players",
+      "add": "Add",
+      "randomize": "Randomize",
+      "removeAll": "Remove all"
+    },
+    "playersMenu": {
+      "title": "Players Menu",
+      "required": "(required)"
+    },
+    "characters": {
+      "title": "Characters",
+      "selectEdition": "Select Edition",
+      "assign": "Choose & Assign",
+      "addFabled": "Add Fabled",
+      "removeAll": "Remove all"
+    },
+    "help": {
+      "title": "Help",
+      "reference": "Reference Sheet",
+      "nightOrder": "Night Order Sheet",
+      "gameState": "Game State JSON",
+      "discord": "Join Discord",
+      "source": "Source code",
+      "issues": "Report bug / Request feature"
+    }
+  },
+  "prompt": {
+    "background": "Enter custom background URL",
+    "createSession": "Enter a channel number / name for your session",
+    "sendRoles": "Do you want to distribute assigned characters to all SEATED players?",
+    "sendRolesWithForbidden1": "WARNING\nOne of the roles you want to send is forbidden (",
+    "sendRolesWithForbidden2": ").\nConfirm sending?",
+    "imageOptIn": "Are you sure you want to allow custom images? A malicious script file author might track your IP address this way.",
+    "joinSession": "Enter the channel number / name of the session you want to join",
+    "leaveSession": "Are you sure you want to leave the active live game?",
+    "addPlayer": "Player name",
+    "randomizeSeatings": "Are you sure you want to randomize seatings?",
+    "clearPlayers": "Are you sure you want to remove all players?",
+    "clearRoles": "Are you sure you want to remove all player roles?",
+    "customUrl": "Enter custom script JSON URL",
+    "customError": "Error loading script",
+    "customNote": "Add custom note"
+  },
+  "vote": {
+    "nominates": "nominates",
+    "callexile": "calls for exile",
+    "exclam": "!",
+    "votes": "votes",
+    "inFavor": "in favor",
+    "majorityIs": "majority is",
+    "secretBallot": "Votes are by secret ballot.",
+    "timePerPlayer": "Time per Player:",
+    "countdown": "Countdown",
+    "restart": "Restart",
+    "start": "Start",
+    "pause": "Pause",
+    "resume": "Resume",
+    "reset": "Reset",
+    "close": "Close",
+    "setMarked": "Set as marked",
+    "removeMarked": "Remove marked",
+    "secondsBetweenVotes": "seconds per vote",
+    "handDown": "Hand Down",
+    "handUp": "Hand Up",
+    "seatToVote": "Sit down to vote",
+    "doVote": "Vote"
+  },
+  "townsquare": {
+    "others": "Other Roles",
+    "bluffs": "Demon Bluffs",
+    "fabled": "Fabled",
+    "storytellerTools": "Storyteller",
+    "timer": {
+      "default": {
+        "text": "Countdown"
+      },
+      "prompt": {
+        "name": "Countdown name",
+        "duration": "Duration in minutes",
+        "durationError": "Please enter a number in minutes"
+      },
+      "daytime": {
+        "button": "Daytime",
+        "text": "Daytime"
+      },
+      "nominations": {
+        "button": "Nominations",
+        "text": "Nominations open"
+      },
+      "dusk": {
+        "button": "End of Day",
+        "text": "End of Day"
+      },
+      "accusation": {
+        "button": "Accusation",
+        "text": "$accusator nominates $accusee"
+      },
+      "defense": {
+        "button": "Defense",
+        "text": "$accusee defends against $accusator"
+      },
+      "debate": {
+        "button": "Debate",
+        "text": "Should we execute $accusee?"
+      }
+    }
+  },
+  "towninfo": {
+    "addPlayers": "Press [A] to add more players!",
+    "nightPhase": "It's night time"
+  },
+  "player": {
+    "handUp": "Hand up",
+    "handDown": "Hand down",
+    "cancel": "Cancel",
+    "swap": "Swap seats with this player",
+    "swapAlignment": "Swap alignment",
+    "move": "Move player to this seat",
+    "nominate": "Nominate this player",
+    "ghostVote": "Ghost Vote",
+    "changePronouns": "Change pronouns",
+    "changeName": "Rename",
+    "movePlayer": "Move player",
+    "swapPlayers": "Swap seats",
+    "removePlayer": "Remove player",
+    "emptySeat": "Empty seat",
+    "nomination": "Nomination",
+    "specialVote": "Special vote",
+    "claimSeat": "Claim seat",
+    "vacateSeat": "Vacate seat",
+    "occupiedSeat": "Occupied seat"
+  },
+  "intro": {
+    "header": "Welcome to the unofficial virtual Town Square for Blood on the Clocktower! Please add players via the",
+    "menu": "Menu",
+    "body": "in the top right or by pressing [A] to get started. You can also join a live session by pressing [J].",
+    "footerStart": "This is an open-source project and can be found on",
+    "footerEnd": ". This site is not affiliated with The Pandemonium Institute. \"Blood on the Clocktower\" is a trademark of Steven Medway & The Pandemonium Institute."
+  },
+  "modal": {
+    "edition": {
+      "title": "Select Edition:",
+      "tab": {
+        "official": "Official",
+        "popular": "Popular",
+        "teensyville": "Teensyville",
+        "custom": "Custom",
+        "build": "Build"
+      },
+      "custom": {
+        "introStart": "To play with a custom script, you can select the characters of your choice using the",
+        "scriptTool": "official script tool",
+        "introEnd": "then upload the generated JSON file directly here or from a hosted URL.",
+        "instructionsStart": "For more information, you can refer to",
+        "documentation": "the documentation",
+        "instructionsEnd": "to learn how to write custom character sheets.",
+        "warning": "Only load JSON files from trusted sources!",
+        "popularScripts": "Some popular scripts:",
+        "upload": "Upload JSON",
+        "url": "Enter URL",
+        "clipboard": "Clipboard",
+        "back": "Back",
+        "startDraft": "Start draft"
+      }
+    },
+    "fabled": {
+      "title": "Choose a fabled character to add to the game"
+    },
+    "gameState": {
+      "title": "Current Game State",
+      "copy": "Copy JSON",
+      "load": "Load state"
+    },
+    "nightOrder": {
+      "title": "Night Order",
+      "custom": "Custom Script",
+      "firstNight": "First Night",
+      "otherNights": "Other Nights",
+      "minionInfo": "Minion Info",
+      "minionInfoDescription": "If there are multiple Minions, they learn who each other are. Show the Minions who the Demon is.",
+      "demonInfo": "Demon Info & Bluffs",
+      "demonInfoDescription": "Show the Demon who their Minions are. Show 3 good character tokens that are not in play.",
+      "dusk": "Dusk",
+      "duskDescription1": "Put players to sleep.",
+      "duskDescription2": "End the day and put players to sleep.",
+      "dawn": "Dawn",
+      "dawnDescription1": "Wake players.",
+      "dawnDescription2": "Wake players, then announce who died tonight.",
+      "reference": "Show Role Reference"
+    },
+    "reference": {
+      "title": "Role Reference",
+      "jinxed": "Jinxed",
+      "notfirstnight": "* Not first night",
+      "teamNames": {
+        "townsfolk": "townsfolk",
+        "outsider": "outsiders",
+        "minion": "minions",
+        "demon": "demons"
+      },
+      "nightOrder": "Show Night Order"
+    },
+    "reminder": {
+      "title": "Add a reminder:",
+      "good": "Good",
+      "evil": "Evil",
+      "townsfolk": "Townsfolk",
+      "outsider": "Outsider",
+      "minion": "Minion",
+      "demon": "Demon",
+      "custom": "Note",
+      "customPrompt": "Add a custom reminder note"
+    },
+    "role": {
+      "title": "Choose a character for",
+      "bluff": "bluff",
+      "editionRoles": "Edition Roles",
+      "othertravelers": "Other Travelers"
+    },
+    "roles": {
+      "titleStart": "Select characters for ",
+      "titleEnd": " players:",
+      "warning": "Warning: some of the selected characters change the starting distribution! Random assignment does not make these changes itself, remember to modify assignments accordingly before sending roles to players.",
+      "allowMultiple": "Allow duplicate characters",
+      "assignStart": "Randomly assign these ",
+      "assignEnd": " roles",
+      "shuffle": "Shuffle characters"
+    },
+    "voteHistory": {
+      "title": "Vote History",
+      "accessibility": "Player Accessible",
+      "clear": "Clear for all",
+      "time": "Time",
+      "nominator": "Nominator",
+      "nominee": "Nominee",
+      "type": "Type",
+      "votes": "Votes",
+      "majority": "Majority",
+      "voters": "Voters",
+      "execution": "Execution",
+      "exile": "Exile",
+      "hiddenVote": "Result hidden by Organ Grinder"
+    },
+    "specialvote": {
+      "title": "Select vote type:",
+      "bishop": "Storyteller Nomination",
+      "atheist": "Storyteller Nomination",
+      "st": "the Storyteller",
+      "cultleader": "Cult Creation",
+      "cultleaderMessages": {
+        "timerText": "wants to create a cult",
+        "debateText": "Do you want to join the cult created by $player?",
+        "buttonLabel": "Cult"
+      },
+      "custom": "Custom vote",
+      "complete": "Complete: ",
+      "customMessages": {
+        "timerText": "",
+        "debateText": "Debate is open",
+        "buttonLabel": "(Custom)"
+      }
+    }
+  }
+}

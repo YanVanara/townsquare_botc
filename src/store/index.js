@@ -8,6 +8,7 @@ import editionJSON from "../editions.json";
 import rolesJSON from "../roles.json";
 import fabledJSON from "../fabled.json";
 import jinxesJSON from "../hatred.json";
+import i18n from "./locale";
 
 Vue.use(Vuex);
 
@@ -97,6 +98,7 @@ export default new Vuex.Store({
     session
   },
   state: {
+    locale: i18n.locale,
     grimoire: {
       isNight: false,
       isNightOrder: true,
@@ -171,6 +173,13 @@ export default new Vuex.Store({
     toggleNight: toggle("isNight"),
     toggleGrimoire: toggle("isPublic"),
     toggleImageOptIn: toggle("isImageOptIn"),
+    setLocale(state, locale) {
+      if (locale === "en" || locale === "fr") {
+        state.locale = locale;
+        i18n.locale = locale;
+        localStorage.setItem("locale", locale);
+      }
+    },
     toggleModal({ modals }, name) {
       if (name) {
         modals[name] = !modals[name];

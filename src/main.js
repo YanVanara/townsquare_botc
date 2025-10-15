@@ -1,6 +1,7 @@
 import Vue from "vue";
 import App from "./App";
 import store from "./store";
+import i18n from "./store/locale";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { fas } from "@fortawesome/free-solid-svg-icons";
 import { fab } from "@fortawesome/free-brands-svg-icons";
@@ -64,5 +65,6 @@ Vue.config.productionTip = false;
 
 new Vue({
   render: h => h(App),
-  store
+  store,
+  i18n
 }).$mount("#app");

@@ -3,7 +3,7 @@
     v-if="modals.reminder && availableReminders.length && players[playerIndex]"
     @close="toggleModal('reminder')"
   >
-    <h3>Choose a reminder token:</h3>
+    <h3>{{ $t('ui.modal.reminder.title') }}</h3>
     <ul class="reminders">
       <li
         v-for="reminder in availableReminders"
@@ -24,7 +24,7 @@
             })`
           }"
         ></span>
-        <span class="text">{{ reminder.name }}</span>
+        <span class="text">{{ getTranslatedReminderName(reminder) }}</span>
       </li>
     </ul>
   </Modal>
@@ -82,20 +82,74 @@ export default {
         }
       });
 
-      reminders.push({ role: "good", name: "Good" });
-      reminders.push({ role: "evil", name: "Evil" });
-      reminders.push({ role: "custom", name: "Custom note" });
+      reminders.push({ role: "good", name: this.$t('ui.modal.reminder.good') });
+      reminders.push({ role: "evil", name: this.$t('ui.modal.reminder.evil') });
+      reminders.push({ role: "custom", name: this.$t('ui.modal.reminder.custom') });
       return reminders;
     },
     ...mapState(["modals", "grimoire"]),
     ...mapState("players", ["players"])
   },
   methods: {
+    getTranslatedReminderName(reminder) {
+      // If it's a hardcoded reminder (good/evil/custom), it's already translated
+      if (reminder.role === "good" || reminder.role === "evil" || reminder.role === "custom") {
+        return reminder.name;
+      }
+      
+      // For role-based reminders, we need to look up the translated reminder
+      if (reminder.role && reminder.name) {
+        // Get the English role data to find reminder index
+        const englishRole = this.$store.state.roles.get(reminder.role);
+        if (englishRole && englishRole.reminders) {
+          // Find the index of this reminder in English
+          const reminderIndex = englishRole.reminders.indexOf(reminder.name);
+          
+          if (reminderIndex !== -1) {
+            // Check if we have French translation data
+            const currentLocale = this.$i18n.locale;
+            const roleTranslations = this.$i18n.messages[currentLocale]?.roles?.[reminder.role];
+            
+            if (roleTranslations && roleTranslations.reminders) {
+              // If reminders is an object (transformed format)
+              if (typeof roleTranslations.reminders === 'object' && !Array.isArray(roleTranslations.reminders)) {
+                const reminderKeys = Object.keys(roleTranslations.reminders);
+                if (reminderKeys[reminderIndex]) {
+                  return reminderKeys[reminderIndex];
+                }
+              }
+              // If reminders is still an array
+              else if (Array.isArray(roleTranslations.reminders) && roleTranslations.reminders[reminderIndex]) {
+                return roleTranslations.reminders[reminderIndex];
+              }
+            }
+          }
+        }
+        
+        // Try global reminders
+        if (englishRole && englishRole.remindersGlobal) {
+          const reminderIndex = englishRole.remindersGlobal.indexOf(reminder.name);
+          if (reminderIndex !== -1) {
+            const currentLocale = this.$i18n.locale;
+            const roleTranslations = this.$i18n.messages[currentLocale]?.roles?.[reminder.role];
+            
+            if (roleTranslations && roleTranslations.remindersGlobal) {
+              if (Array.isArray(roleTranslations.remindersGlobal) && roleTranslations.remindersGlobal[reminderIndex]) {
+                return roleTranslations.remindersGlobal[reminderIndex];
+              }
+            }
+          }
+        }
+      }
+      
+      // Fallback to original name
+      return reminder.name;
+    },
     addReminder(reminder) {
       const player = this.$store.state.players.players[this.playerIndex];
       let value;
       if (reminder.role === "custom") {
-        const name = prompt("Add a custom reminder note");
+        const name = prompt(this.$t('ui.modal.reminder.customPrompt'));
         if (!name) return;
         value = [...player.reminders, { role: "custom", name }];
       } else {

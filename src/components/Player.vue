@@ -23,8 +23,8 @@
         v-if="nightOrder.get(player).first && grimoire.isNightOrder"
       >
         <em>{{ nightOrder.get(player).first }}.</em>
-        <span v-if="player.role.firstNightReminder">{{
-          player.role.firstNightReminder
+        <span v-if="getTranslatedFirstNightReminder(player.role)">{{
+          getTranslatedFirstNightReminder(player.role)
         }}</span>
       </div>
       <div
@@ -32,8 +32,8 @@
         v-if="nightOrder.get(player).other && grimoire.isNightOrder"
       >
         <em>{{ nightOrder.get(player).other }}.</em>
-        <span v-if="player.role.otherNightReminder">{{
-          player.role.otherNightReminder
+        <span v-if="getTranslatedOtherNightReminder(player.role)">{{
+          getTranslatedOtherNightReminder(player.role)
         }}</span>
       </div>
 
@@ -344,6 +344,20 @@ export default {
         this.index,
         !this.session.votes[this.index]
       ]);
+    },
+    getTranslatedFirstNightReminder(role) {
+      if (!role || !role.id) return role?.firstNightReminder || "";
+      
+      const translationKey = `roles.${role.id}.firstNightReminder`;
+      const translated = this.$t(translationKey);
+      return translated !== translationKey ? translated : role.firstNightReminder || "";
+    },
+    getTranslatedOtherNightReminder(role) {
+      if (!role || !role.id) return role?.otherNightReminder || "";
+      
+      const translationKey = `roles.${role.id}.otherNightReminder`;
+      const translated = this.$t(translationKey);
+      return translated !== translationKey ? translated : role.otherNightReminder || "";
     }
   }
 };

@@ -8,12 +8,12 @@
       @click="toggleModal('nightOrder')"
       icon="cloud-moon"
       class="toggle"
-      title="Show Night Order"
+      :title="$t('ui.modal.reference.nightOrder')"
     />
     <h3>
-      Character Reference
+      {{ $t('ui.modal.reference.title') }}
       <font-awesome-icon icon="address-card" />
-      {{ edition.name || "Custom Script" }}
+      {{ edition.name || $t('ui.modal.edition.custom.introEnd') }}
     </h3>
     <div
       v-for="(teamRoles, team) in rolesGrouped"
@@ -21,7 +21,7 @@
       :class="['team', team]"
     >
       <aside>
-        <h4>{{ team }}</h4>
+        <h4>{{ $t(`ui.modal.reference.teamNames.${team}`) }}</h4>
       </aside>
       <ul>
         <li v-for="role in teamRoles" :class="[team]" :key="role.id">
@@ -42,8 +42,8 @@
             <span class="player" v-if="Object.keys(playersByRole).length">{{
               playersByRole[role.id] ? playersByRole[role.id].join(", ") : ""
             }}</span>
-            <span class="name">{{ role.name }}</span>
-            <span class="ability">{{ role.ability }}</span>
+            <span class="name">{{ getTranslatedName(role) }}</span>
+            <span class="ability">{{ getTranslatedAbility(role) }}</span>
           </div>
         </li>
         <li :class="[team]"></li>
@@ -53,7 +53,7 @@
 
     <div class="team jinxed" v-if="jinxed.length">
       <aside>
-        <h4>Jinxed</h4>
+        <h4>{{ $t('ui.modal.reference.jinxed') }}</h4>
       </aside>
       <ul>
         <li v-for="(jinx, index) in jinxed" :key="index">
@@ -75,9 +75,9 @@
           ></span>
           <div class="role">
             <span class="name"
-              >{{ jinx.first.name }} & {{ jinx.second.name }}</span
+              >{{ getTranslatedName(jinx.first) }} & {{ getTranslatedName(jinx.second) }}</span
             >
-            <span class="ability">{{ jinx.reason }}</span>
+            <span class="ability">{{ getTranslatedJinxReason(jinx.first.id, jinx.second.id) }}</span>
           </div>
         </li>
         <li></li>
@@ -144,7 +144,35 @@ export default {
     ...mapState("players", ["players"])
   },
   methods: {
-    ...mapMutations(["toggleModal"])
+    ...mapMutations(["toggleModal"]),
+    getTranslatedName(role) {
+      if (!role || !role.id) return "";
+      const translationKey = `roles.${role.id}.name`;
+      const translated = this.$t(translationKey);
+      // If translation exists and is different from the key, use it
+      return translated !== translationKey ? translated : role.name;
+    },
+    getTranslatedAbility(role) {
+      if (!role || !role.id) return "";
+      const translationKey = `roles.${role.id}.ability`;
+      const translated = this.$t(translationKey);
+      // If translation exists and is different from the key, use it
+      return translated !== translationKey ? translated : role.ability;
+    },
+    getTranslatedJinxReason(firstId, secondId) {
+      const translationKey = `hatred.${firstId}.${secondId}`;
+      const translated = this.$t(translationKey);
+      // If translation exists and is different from the key, use it
+      if (translated !== translationKey) return translated;
+      
+      // Fallback to checking if hatred exists in i18n messages
+      if (this.$i18n.messages[this.$i18n.locale]?.hatred?.[firstId]?.[secondId]) {
+        return this.$i18n.messages[this.$i18n.locale].hatred[firstId][secondId];
+      }
+      
+      // Final fallback to original jinx data
+      return this.jinxes.get(firstId)?.get(secondId) || "";
+    }
   }
 };
 </script>
