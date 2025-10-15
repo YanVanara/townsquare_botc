@@ -268,6 +268,12 @@ wss.on("connection", function connection(ws, req) {
   // start ping pong
   ws.ping(noop);
   ws.on("pong", heartbeat);
+  
+  // handle errors
+  ws.on("error", function(error) {
+    console.log(`❌ WebSocket error: ${ws.channel}/${ws.playerId} - ${error.message}`);
+  });
+  
   // handle message
   ws.on("message", function incoming(data) {
     metrics.messages_incoming.inc();
@@ -371,6 +377,18 @@ wss.on("connection", function connection(ws, req) {
 
   // ===== AUTO-LISTENER: Handle HOST disconnect =====
   ws.on("close", function() {
+    // Immediately remove from channels array to prevent duplicate host errors
+    if (channels[ws.channel]) {
+      const index = channels[ws.channel].indexOf(ws);
+      if (index > -1) {
+        channels[ws.channel].splice(index, 1);
+      }
+      // Clean up empty channels
+      if (channels[ws.channel].length === 0) {
+        delete channels[ws.channel];
+      }
+    }
+    
     if (ws.playerId === "host" && listenerManager) {
       listenerManager.handleHostDisconnect(ws.channel);
     }
