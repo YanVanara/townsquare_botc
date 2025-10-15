@@ -18,6 +18,27 @@ const PING_INTERVAL = 30000; // 30 seconds
 let server;
 const options = {};
 
+// HTTP request handler for health checks and metrics
+const requestHandler = (req, res) => {
+  console.log(`HTTP ${req.method} ${req.url} from ${req.headers.origin || req.headers.host || 'unknown'}`);
+  
+  // Health check endpoint
+  if (req.url === '/' || req.url === '/health') {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end('OK');
+  }
+  // Metrics endpoint
+  else if (req.url === '/metrics') {
+    res.setHeader("Content-Type", register.contentType);
+    register.metrics().then(out => res.end(out));
+  }
+  // Not found
+  else {
+    res.writeHead(404);
+    res.end('Not Found');
+  }
+};
+
 if (process.env.NODE_ENV !== "development") {
   // Check if SSL certificates exist
   const certExists = fs.existsSync("cert.pem") && fs.existsSync("key.pem");
@@ -26,14 +47,14 @@ if (process.env.NODE_ENV !== "development") {
     console.log("SSL certificates found, using HTTPS");
     options.cert = fs.readFileSync("cert.pem");
     options.key = fs.readFileSync("key.pem");
-    server = https.createServer(options);
+    server = https.createServer(options, requestHandler);
   } else {
     console.log("No SSL certificates found, using HTTP (Railway will handle SSL)");
-    server = http.createServer();
+    server = http.createServer(requestHandler);
   }
 } else {
   // Development mode - use HTTP
-  server = http.createServer();
+  server = http.createServer(requestHandler);
 }
 
 const wss = new WebSocket.Server({
@@ -148,6 +169,8 @@ wss.on("connection", function connection(ws, req) {
     channels[ws.channel] = [];
   }
   channels[ws.channel].push(ws);
+  // log successful connection
+  console.log(`✅ WebSocket connected: ${req.url} | channel: ${ws.channel} | player: ${ws.playerId} | origin: ${req.headers.origin || 'none'}`);
   // start ping pong
   ws.ping(noop);
   ws.on("pong", heartbeat);
@@ -287,30 +310,12 @@ wss.on("close", function close() {
   clearInterval(interval);
 });
 
-// prod mode with stats API
+// prod mode - start server
 if (process.env.NODE_ENV !== "development") {
   const PORT = process.env.PORT || 8080;
   console.log(`server starting on port ${PORT}`);
   server.listen(PORT, '0.0.0.0', () => {
-    console.log(`WebSocket server listening on 0.0.0.0:${PORT}`);
-  });
-  
-  // Handle HTTP requests (not WebSocket upgrades)
-  server.on("request", (req, res) => {
-    console.log(`HTTP ${req.method} ${req.url} from ${req.headers.origin || 'unknown'}`);
-    
-    // Metrics endpoint
-    if (req.url === '/metrics' || req.url === '/') {
-      res.setHeader("Content-Type", register.contentType);
-      register.metrics().then(out => res.end(out));
-    } else {
-      res.writeHead(404);
-      res.end('Not Found');
-    }
-  });
-  
-  // Log WebSocket connections
-  wss.on("connection", (ws, req) => {
-    console.log(`✅ WebSocket connected: ${req.url} from ${req.headers.origin}`);
+    console.log(`✅ WebSocket server ready on 0.0.0.0:${PORT}`);
+    console.log(`✅ Health check: http://localhost:${PORT}/health`);
   });
 }
