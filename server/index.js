@@ -14,6 +14,29 @@ register.setDefaultLabels({
 const PING_INTERVAL = 30000; // 30 seconds
 let isServerReady = false; // Flag to track if server is fully initialized
 
+// ===== AUTO-LISTENER FEATURE (OFF by default) =====
+const ENABLE_AUTO_LISTENERS = process.env.ENABLE_AUTO_LISTENERS === 'true';
+let listenerManager = null;
+
+if (ENABLE_AUTO_LISTENERS) {
+  try {
+    const ListenerManager = require('./listener-manager');
+    listenerManager = new ListenerManager({
+      enabled: true,
+      supabaseUrl: process.env.SUPABASE_URL,
+      supabaseKey: process.env.SUPABASE_ANON_KEY,
+      userId: process.env.TRACKER_USER_ID
+    });
+    console.log('🎛️  Auto-Listener feature ENABLED');
+  } catch (error) {
+    console.error('❌ Failed to initialize Listener Manager:', error.message);
+    console.log('⚠️  Continuing without auto-listener feature');
+  }
+} else {
+  console.log('🔒 Auto-Listener feature DISABLED (set ENABLE_AUTO_LISTENERS=true to enable)');
+}
+// ===== END AUTO-LISTENER FEATURE =====
+
 // SSL Configuration: Only use SSL if certificates exist (self-hosted)
 // Railway/cloud platforms handle SSL at the load balancer level
 let server;
@@ -208,6 +231,30 @@ wss.on("connection", function connection(ws, req) {
     metrics.connection_terminated_host.inc();
     return;
   }
+
+  // ===== AUTO-LISTENER: Spawn Game Listener when HOST joins =====
+  if (ws.playerId === "host" && listenerManager) {
+    // Check if this is a NEW host (not reconnecting)
+    const isNewHost = !channels[ws.channel] || 
+      !channels[ws.channel].some(c => 
+        c !== ws && 
+        c.playerId === "host" && 
+        c.readyState === WebSocket.OPEN
+      );
+    
+    if (isNewHost) {
+      try {
+        listenerManager.spawnGameListener(ws.channel);
+      } catch (error) {
+        console.error(`❌ Error spawning listener for ${ws.channel}:`, error.message);
+      }
+    } else {
+      // Reconnecting host
+      listenerManager.handleHostReconnect(ws.channel);
+    }
+  }
+  // ===== END AUTO-LISTENER =====
+
   ws.isAlive = true;
   ws.pingStart = new Date().getTime();
   ws.counter = 0;
@@ -321,6 +368,14 @@ wss.on("connection", function connection(ws, req) {
         break;
     }
   });
+
+  // ===== AUTO-LISTENER: Handle HOST disconnect =====
+  ws.on("close", function() {
+    if (ws.playerId === "host" && listenerManager) {
+      listenerManager.handleHostDisconnect(ws.channel);
+    }
+  });
+  // ===== END AUTO-LISTENER =====
 });
 
 // start ping interval timer
@@ -355,6 +410,12 @@ const interval = setInterval(function ping() {
 // handle server shutdown
 wss.on("close", function close() {
   clearInterval(interval);
+  
+  // ===== AUTO-LISTENER: Shutdown all listeners =====
+  if (listenerManager) {
+    listenerManager.shutdown();
+  }
+  // ===== END AUTO-LISTENER =====
 });
 
 // prod mode - start server
