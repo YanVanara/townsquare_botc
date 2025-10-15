@@ -94,14 +94,22 @@ if (process.env.NODE_ENV !== "development") {
 const wss = new WebSocket.Server({
   ...(process.env.NODE_ENV === "development" ? { port: 8081 } : { server }),
   verifyClient: info => {
+    console.log(`🔍 WebSocket verifyClient called:`);
+    console.log(`   - Origin: ${info.origin || 'none'}`);
+    console.log(`   - Secure: ${info.secure}`);
+    console.log(`   - Request URL: ${info.req.url}`);
+    
     // Allow connections without origin (health checks, direct connections)
     if (!info.origin) {
+      console.log(`   ✅ Allowed (no origin)`);
       return true;
     }
     // Verify origin matches allowed domains
-    return !!info.origin.match(
+    const isAllowed = !!info.origin.match(
       /^https?:\/\/([^.]+\.github\.io|localhost|clocktower\.online|eddbra1nprivatetownsquare\.xyz|railway\.app)/i
     );
+    console.log(`   ${isAllowed ? '✅' : '❌'} Origin ${isAllowed ? 'allowed' : 'rejected'}`);
+    return isAllowed;
   }
 });
 
