@@ -1,0 +1,15 @@
+# Nixpacks configuration for Railway
+# https://nixpacks.com/docs/configuration/file
+
+[phases.setup]
+nixPkgs = ["nodejs-18_x"]
+
+[phases.install]
+cmds = ["npm ci"]
+
+[phases.build]
+# Build is handled by Railway based on start command
+
+[start]
+# Start command will be set via Railway environment or Procfile
+

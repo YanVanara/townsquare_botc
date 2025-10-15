@@ -1,0 +1,9 @@
+# Ignore files for Railway deployment
+node_modules/
+.git/
+*.log
+.env.local
+.DS_Store
+dist/
+.vscode/
+
