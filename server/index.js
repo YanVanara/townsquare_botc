@@ -289,8 +289,11 @@ wss.on("close", function close() {
 
 // prod mode with stats API
 if (process.env.NODE_ENV !== "development") {
-  console.log("server starting");
-  server.listen(8080);
+  const PORT = process.env.PORT || 8080;
+  console.log(`server starting on port ${PORT}`);
+  server.listen(PORT, '0.0.0.0', () => {
+    console.log(`WebSocket server listening on 0.0.0.0:${PORT}`);
+  });
   server.on("request", (req, res) => {
     res.setHeader("Content-Type", register.contentType);
     register.metrics().then(out => res.end(out));
