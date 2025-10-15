@@ -106,7 +106,7 @@ const wss = new WebSocket.Server({
     }
     // Verify origin matches allowed domains
     const isAllowed = !!info.origin.match(
-      /^https?:\/\/(([^.]+\.)?github\.io|localhost|clocktower\.online|eddbra1nprivatetownsquare\.xyz|[^.]+\.railway\.app)/i
+      /^https?:\/\/(([^.]+\.)?github\.io|localhost|clocktower\.online|eddbra1nprivatetownsquare\.xyz|[\w.-]+\.railway\.app)/i
     );
     console.log(`   ${isAllowed ? '✅' : '❌'} Origin ${isAllowed ? 'allowed' : 'rejected'}`);
     return isAllowed;
